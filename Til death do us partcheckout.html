@@ -1,0 +1,2599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>Checkout Connoisseur</title>
+    <link rel="icon" href="https://res.cloudinary.com/dsrids98p/image/upload/v1756303021/Connoisseur_lgagud.png" type="image/png">
+    <!-- Bootstrap 4 CSS CDN -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Pinyon+Script&display=swap" rel="stylesheet">
+
+    <style>
+        /* Global box-sizing for consistent layout */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        /* Ensure html and body prevent horizontal overflow */
+        html {
+            overflow-x: hidden;
+        }
+        body {
+            font-family: 'Inter', sans-serif; /* Using Inter font as per instructions */
+            min-height: 100vh; /* Full viewport height */
+            background-color: #ffffff; /* Dark background color changed to #ffffff */
+            color: #212529; /* Default text color for body changed to black */
+            overflow-x: hidden; /* Prevent horizontal scrolling */
+        }
+        /* Override browser autofill styles for input fields */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus,
+        input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0px 1000px #FFFFFF inset !important; /* White background for autofill */
+            -webkit-text-fill-color: #212529 !important; /* Dark text color for autofill */
+            transition: background-color 5000s ease-in-out 0s; /* Prevent transition to blue */
+        }
+
+        /* Custom style for the select arrow to ensure consistency across browsers */
+        select.form-control {
+            -webkit-appearance: none; /* Hide default arrow for Webkit browsers */
+            -moz-appearance: none;
+            appearance: none; /* Hide default arrow for modern browsers */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='currentColor'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd' /%3E%3Csvg%3E");
+            background-repeat: no-repeat;
+            background-position: calc(100% - 1.5rem) center; /* Adjusted for desktop */
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+            border-top-right-radius: 0 !important;
+            border-bottom-right-radius: 0 !important;
+            border-right: none !important;
+        }
+        
+        /* Style for input fields */
+        .form-control {
+            border-radius: 0.5rem; /* More rounded corners */
+            border: 1px solid #000000; /* Black outline */
+        }
+        
+        /* Custom focus style for input fields */
+        .form-control:focus {
+            border-color: #000000;
+            box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.25);
+        }
+
+
+        /* Custom radio button styling for the main shipping method */
+        input[type="radio"] {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            display: inline-block;
+            width: 1.25rem; /* size of the radio button */
+            height: 1.25rem; /* size of the radio button */
+            background-color: #FFFFFF; /* White background */
+            border: 2px solid #000000; /* Thicker black border */
+            border-radius: 50%; /* round shape */
+            vertical-align: middle;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+
+        input[type="radio"]:checked {
+            border-color: #712C81; /* STC purple border when checked */
+            background-color: #712C81; /* STC purple background when checked */
+        }
+
+        input[type="radio"]:checked::after {
+            content: '';
+            display: block;
+            width: 0.5rem; /* inner circle size */
+            height: 0.5rem; /* inner circle size */
+            background-color: #FFFFFF; /* white inner circle */
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        input[type="radio"]:focus {
+            outline: none;
+            box-shadow: 0 0 0 0.2rem rgba(113, 44, 129, 0.25); /* STC purple focus ring */
+        }
+
+        /* Class to make elements 50% transparent without affecting layout */
+        .text-transparent-on-save {
+            opacity: 0.5 !important;
+        }
+        .text-transparent-on-save::placeholder {
+            opacity: 0.5 !important;
+        }
+
+        /* Style for error message */
+        .error-message {
+            color: #dc2626; /* Red color */
+            font-size: 0.875rem; /* text-sm */
+            margin-top: 0.5rem; /* mt-2 */
+            display: none; /* Hidden by default */
+        }
+        .error-message.show {
+            display: block; /* Show when 'show' class is present */
+        }
+
+        /* Custom style for the information icon and tooltip */
+        .info-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.25rem;
+            height: 1.25rem;
+            background-color: #6c757d; /* darker grey */
+            color: #ced4da; /* grey 'i' */
+            border-radius: 50%;
+            font-style: italic;
+            font-weight: bold;
+            font-size: 0.85rem;
+            cursor: pointer;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+
+        .tooltip-inner {
+            background-color: #6c757d; /* grey background */
+            color: #fff; /* white text */
+            text-align: left;
+            max-width: 250px;
+        }
+
+        .tooltip.bs-tooltip-top .arrow::before {
+            border-top-color: #6c757d; /* Match tooltip background */
+        }
+
+        /* Custom font size for labels */
+        .text-lg {
+            font-size: 1.25rem; /* Approx. 20px, similar to Tailwind's text-lg */
+        }
+        .text-sm {
+            font-size: 0.875rem; /* Approx. 14px, similar to Tailwind's text-sm */
+        }
+
+        /* Oswald font for specific label */
+        .oswald-font {
+            font-family: 'Oswald', sans-serif;
+        }
+
+        /* Image styling for the logo at the top of the form */
+        .stc-bank-logo {
+            max-width: 70px; /* Made smaller */
+            height: auto;
+            display: block; /* Ensures it takes its own line */
+            margin-top: 0.5rem; /* Adjusted downwards */
+            margin-bottom: 0.5rem; /* Adds bottom margin */
+            margin-left: -0.2rem; /* Adjusted slightly right */
+        }
+
+        /* Image styling for the logo near payment section */
+        .stc-bank-logo-payment {
+            max-width: 70px; /* Smaller size, consistent with the top logo */
+            height: auto;
+            display: block; /* Ensures it takes its own line */
+            margin-top: 1rem; /* Spacing below the "Payment" text */
+            margin-left: 0; /* Align to the left */
+        }
+
+        /* White bar at the top - REMOVED */
+
+        .order-summary-toggle {
+            color: #0056b3; /* Darker shade of Bootstrap primary blue */
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            padding: 1rem 0; /* Padding for click area */
+            margin-left: 0; /* Changed from 20% to 0 */
+        }
+
+        /* Removed .order-summary-toggle .caret styles */
+
+        .order-summary-content {
+            background-color: #f8f9fa; /* Light gray background for dropdown content */
+            color: #212529; /* Dark text for content */
+            padding: 1rem;
+            border-top: 1px solid #dee2e6;
+            width: 100%;
+            display: flex; /* Use flexbox for layout */
+            align-items: center; /* Vertically align items */
+            padding-top: 1.5rem; /* Increased padding for more space */
+            padding-bottom: 1.5rem; /* Increased padding for more space */
+            /* Removed max-width to allow it to expand to 100% of form-container */
+            margin-left: 0; /* Align to the left */
+            margin-right: auto; /* Push to left */
+        }
+
+        /* Custom style for the shipping price */
+        .shipping-price {
+            font-size: 1.25rem; /* Larger font size */
+            margin-left: auto; /* Pushes the price to the far right */
+        }
+
+        /* Container for the image and badge */
+        .image-with-badge-container {
+            position: relative;
+            display: inline-block; /* To contain absolute positioned badge */
+            margin-left: 0;
+            margin-right: 1rem; /* Space between image and text */
+        }
+
+        /* Style for the image inside the dropdown content */
+        .order-summary-content .product-image {
+            height: 80px;
+            width: 80px;
+            object-fit: cover;
+            border-radius: 0.25rem;
+        }
+
+        /* Style for the badge circle */
+        .badge-circle {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #000000;
+            color: #FFFFFF;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            z-index: 1;
+        }
+
+        /* Style for the price text in the order summary */
+        .order-summary-prices {
+            margin-left: auto;
+            margin-right: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .order-summary-text-group span {
+            margin-top: 0.75rem;
+            font-weight: normal;
+        }
+
+        .order-summary-text-group .product-name {
+            font-weight: bold;
+        }
+
+        /* Specific styling for the promo code input to adjust padding and icon position */
+        .input-group.promo-code-input-group .form-control {
+            padding-right: 0.75rem;
+        }
+
+        /* Ensure promo code discount row is hidden by default using a class */
+        .promo-code-hidden {
+            display: none;
+        }
+
+        /* Styling for the main payment section container */
+        #paymentSection {
+            width: 100%;
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 20px;
+            box-sizing: border-box;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out, margin-top 0.5s ease-in-out;
+            height: 0;
+            overflow: hidden;
+            margin-top: 0;
+        }
+
+        #paymentSection.show-payment-section {
+            opacity: 1;
+            height: auto;
+            margin-top: 3rem;
+        }
+
+        /* Styles for the dynamically appearing input fields */
+        .contact-input-group {
+            display: none;
+            margin-top: 1rem;
+            align-items: center;
+            width: 100%;
+        }
+        .contact-input-group.show {
+            display: flex;
+        }
+        .contact-input-group .form-control {
+            flex-grow: 1;
+            margin-right: 0.5rem;
+        }
+        .contact-input-group .btn {
+            flex-shrink: 0;
+        }
+        /* Styling for horizontal radio buttons */
+        .form-check-inline {
+            margin-right: 1.5rem;
+        }
+        /* Ensure labels within form-check are not bold */
+        .form-check-label {
+            font-weight: normal !important;
+        }
+        /* Styling for the country code select and input group (removed flag specific styling) */
+        .whatsapp-input-container .input-group-prepend .form-control,
+        .whatsapp-input-container .input-group-prepend .input-group-text,
+        .whatsapp-input-container .input-group-prepend {
+            display: none;
+        }
+        .whatsapp-input-container input[type="tel"].form-control {
+            border-top-left-radius: .25rem !important;
+            border-bottom-left-radius: .25rem !important;
+            border-left: 1px solid #ced4da !important;
+        }
+
+        /* Positioning for the info icon relative to the image */
+        .image-info-container {
+            position: relative;
+            display: inline-block;
+            max-width: 100%;
+            width: 100%;
+        }
+        /* Removed .image-info-container .info-icon-bottom-right and .info-tooltip styles */
+
+        /* Style for the success/error message box */
+        #submissionMessageBox {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            margin-top: 20px;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        #submissionMessageBox.show {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Style for specific assistance status messages */
+        .assist-status-message {
+            color: #212529;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            display: none;
+            text-align: center;
+        }
+        .assist-status-message.show {
+            display: block;
+        }
+        .assist-status-message.error {
+            color: #dc3545;
+        }
+        .assist-status-message.success {
+            color: #28a745;
+        }
+
+        /* New styles for the main content wrapper and video */
+        .main-content-wrapper {
+            width: 100%;
+            display: flex;
+            flex-grow: 1;
+            position: relative;
+        }
+
+        .form-container {
+            width: 70%;
+            margin-left: 0;
+            flex-shrink: 0;
+            z-index: 1;
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-content-padding {
+            padding: 1rem;
+        }
+
+        /* New class to constrain inner form content */
+        .form-inner-content {
+            max-width: 700px;
+            margin: 0 auto; /* Ensures centering */
+            width: 100%;
+        }
+
+        /* Fixed video container for desktop background */
+        .video-fixed-container {
+            position: fixed;
+            top: 0; /* Adjusted to start from the very top */
+            right: 0;
+            width: 30%;
+            height: 100vh; /* Adjusted to full viewport height */
+            overflow: hidden;
+            z-index: 0;
+            display: flex; /* Always display flex */
+            justify-content: center;
+            align-items: center;
+            background-color: #ffffff; /* Match body background to hide potential gaps */
+        }
+
+        .background-video {
+            width: 95%; /* Made slightly smaller */
+            height: 95%; /* Made slightly smaller */
+            object-fit: contain;
+            pointer-events: none;
+        }
+
+        /* In-form video container - NOW HIDDEN BY DEFAULT, SHOWN BY JS */
+        .payment-method-video-container {
+            width: 100%; /* Take full width of its parent */
+            margin-top: 2.5rem; /* Reduced spacing above */
+            margin-bottom: 2.5rem; /* Reduced spacing below */
+            overflow: hidden; /* Hide anything outside */
+            position: relative; /* Added for text overlay positioning */
+            display: none; /* HIDDEN BY DEFAULT, JS WILL SHOW */
+        }
+
+        .payment-method-video {
+            width: 100%;
+            height: auto; /* Allow height to adjust based on aspect ratio */
+            object-fit: contain;
+            pointer-events: none;
+        }
+
+        /* Style for the "here" text overlay on the video (Default for STC Pay) */
+        .video-overlay-text {
+            position: absolute;
+            bottom: 40px; /* Adjusted from 39.5px to 40px (VERY SLIGHTLY UPWARDS) */
+            right: 6.25px; /* Adjusted from 5.75px to 6.25px (VERY VERY SLIGHTLY TO THE LEFT) */
+            color: #FFFFFF;
+            font-size: 0.4rem;
+            font-weight: bold;
+            z-index: 5;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        /* Style for the phone number overlay on the video (Default for STC Pay) */
+        .phone-overlay-text {
+            position: absolute;
+            top: 73.5%; /* Adjusted from 73% to 73.5% (VERY SLIGHTLY DOWNWARDS) */
+            right: 45px; /* Adjusted from 41px to 45px (slightly to the left) */
+            transform: translateY(-50%);
+            color: #03BB8B;
+            font-size: 1rem;
+            font-weight: bold;
+            z-index: 5;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+            cursor: pointer;
+        }
+
+        /* Styles for the "here" text overlay when UrPay video is active */
+        .payment-method-video-container.urpay-active .video-overlay-text {
+            /* These styles are now overridden by JS to hide the text */
+            bottom: 45px;
+            right: 10px;
+            font-size: 0.75rem;
+            color: #FFFFFF;
+        }
+
+        /* Styles for the phone number overlay when UrPay video is active */
+        .payment-method-video-container.urpay-active .phone-overlay-text {
+            top: 62%; /* Adjusted upwards a decent tad bit */
+            right: 165px; /* Adjusted to the left a bit */
+            font-size: 1.4rem;
+            color: #3362a7;
+        }
+
+        /* Style for the "Copied" message */
+        .copied-message {
+            position: absolute;
+            top: calc(70% + 1.8rem); /* Below the phone number, adjust as needed */
+            right: 140px; /* Same right alignment as phone number */
+            transform: translateY(-50%);
+            color: #03BB8B; /* Same color as phone number */
+            font-size: 0.75rem; /* Made smaller */
+            font-weight: bold;
+            z-index: 5;
+            opacity: 0; /* Hidden by default */
+            transition: opacity 0.5s ease-in-out; /* Smooth fade */
+        }
+
+        /* Styles for the clickable phone number */
+        .stc-pay-number-clickable {
+            color: #550890;
+            cursor: pointer;
+            text-decoration: none;
+            transition: text-decoration 0.3s ease-in-out;
+        }
+        .stc-pay-number-clickable:hover {
+            text-decoration: underline;
+        }
+
+        /* Styles for video overlay messages/buttons */
+        .video-overlay-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            text-align: center;
+            z-index: 10;
+            display: none; /* Hidden by default */
+        }
+        .video-overlay-message.show {
+            display: block;
+        }
+        .video-overlay-message button {
+            margin-top: 0.5rem;
+            padding: 0.5rem 1rem;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 0.25rem;
+            cursor: pointer;
+        }
+        .video-overlay-message button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Media queries for responsiveness */
+        @media (max-width: 992px) {
+            .main-content-wrapper {
+                flex-direction: column; /* Stack form on top of video on mobile */
+                align-items: center; /* Center the form container */
+            }
+            .form-container {
+                width: 100%;
+                max-width: none;
+                padding-left: 1rem;
+                padding-right: 1rem;
+                margin: 0 auto; /* Center it */
+            }
+            /* Ensure inner content also respects mobile width */
+            .form-inner-content {
+                max-width: 100%; /* Ensure no overflow on small screens */
+            }
+            /* Hide the fixed video container COMPLETELY on mobile */
+            .video-fixed-container {
+                display: none !important; /* Use !important to override any other display properties */
+            }
+            /* Adjust select arrow for mobile */
+            select.form-control {
+                background-position: right 0.75rem center; /* Standard positioning for mobile */
+            }
+            /* Adjust info tooltip for mobile */
+            .info-tooltip {
+                left: 50%; /* Center horizontally */
+                transform: translateX(-50%); /* Center horizontally */
+                width: 90vw; /* Make width relative to viewport */
+                margin-left: 0; /* Remove left margin */
+                margin-top: 0.5rem; /* Position below icon */
+            }
+            /* Remove fixed left margin on checkboxes for mobile */
+            .urpay-checkbox,
+            #termsCheckboxContainer {
+                margin-left: 0 !important;
+            }
+
+            /* --- Mobile Payment Method Styles --- */
+            #paymentMethodsWrapper {
+                display: flex;
+                justify-content: space-between;
+                gap: 0.5rem; /* Closer together */
+            }
+            .payment-method-container {
+                flex: 1; /* Changed from width: 100% */
+                border: 2px solid transparent;
+                border-radius: 0.5rem;
+                padding: 0; /* No padding on container */
+                transition: border-color 0.2s ease-in-out;
+                margin-bottom: 0 !important; /* Override default margin */
+            }
+            .payment-method-container.selected-payment .stc-bank-radio-image {
+                border: 2px solid #000000; /* Apply border to image */
+            }
+            .payment-method-container input[type="radio"] {
+                display: none; /* Hide the radio circle */
+            }
+            .payment-method-container .stc-bank-radio-image {
+                max-width: 110px; /* Slightly smaller image for mobile */
+                width: 100%;
+                border: 2px solid transparent; /* Default transparent border */
+            }
+        }
+        @media (min-width: 992px) { /* Desktop styles */
+            .video-fixed-container {
+                width: 30%;
+                height: 100vh; /* Height calculation for desktop */
+                position: fixed; /* Keep fixed on desktop */
+                order: unset; /* Reset order */
+                display: flex; /* Ensure it's displayed as flex on desktop */
+            }
+             .payment-method-container .stc-bank-radio-image {
+                max-width: 150px; /* Slightly smaller image for desktop */
+            }
+            .payment-method-video-container {
+                display: none !important; /* Hide the in-form video on desktop */
+            }
+        }
+        /* Styling for the image inside the STC Bank radio button */
+        .stc-bank-radio-image {
+            height: auto;
+            margin-top: 0;
+            margin-left: 0;
+            display: block;
+            border-radius: 0.1rem;
+            transition: opacity 0.5s ease-in-out, border-color 0.2s ease-in-out; /* Add transition for smooth transparency and border */
+        }
+        /* Adjusted padding for the payment method text container */
+        .payment-method-text-container {
+            padding: 0 !important;
+            background-color: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            vertical-align: middle;
+        }
+        /* Adjust checkbox label vertical alignment */
+        .form-check .form-check-input {
+            margin-top: 0.2rem;
+        }
+        .form-check .form-check-label {
+            padding-top: 0.1rem;
+        }
+
+        /* New styles for Variant boxes */
+        .variant-box-container {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .variant-box {
+            background-color: transparent;
+            color: #000000; /* Text color changed to black */
+            border: 1px solid #000000; /* Border color changed to black, thickness decreased to 1px */
+            border-radius: 0;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: normal; /* Text inside variant boxes is now unbold */
+            text-align: center;
+            transition: all 0.2s ease-in-out;
+            flex-shrink: 0;
+            z-index: 2;
+            position: relative;
+        }
+
+        .variant-box:hover {
+            border-color: #712C81;
+        }
+
+        .variant-box.variant-box-selected {
+            border-color: #000000;
+            background-color: #212529; /* Dark background on select */
+            color: #FFFFFF; /* White text on select */
+        }
+
+        /* New styles for the image and badge in the fitting section */
+        .product-info-line-container {
+            width: 100%;
+            margin-bottom: 1.5rem;
+        }
+
+        .image-with-badge-container-fitting {
+            position: relative;
+            display: inline-block;
+            width: 100px; /* Enlarged */
+            height: 100px; /* Enlarged */
+            border: 1px solid #000000; /* Border changed to black */
+            border-radius: 0.25rem;
+            padding: 2px;
+            flex-shrink: 0;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .product-image-fitting {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 0.1rem;
+        }
+
+        .badge-circle-fitting {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #000000;
+            color: #FFFFFF;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            z-index: 1;
+        }
+
+        /* White horizontal line */
+        .white-horizontal-line {
+            width: 100%;
+            height: 1px;
+            background-color: #000000; /* Line changed to black */
+            margin-top: 1rem;
+        }
+
+        /* Adjust spacing for text next to fitting image */
+        .product-info-text-group {
+            margin-left: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* Smaller font size for the italic text */
+        .product-info-text-group .text-small-italic {
+            font-size: 0.85em;
+        }
+
+        /* Style for "Great choice!" text */
+        .great-choice-text {
+            font-style: italic;
+            color: #212529; /* Text color changed to dark gray */
+            margin-left: auto;
+            flex-shrink: 0;
+            align-self: center;
+        }
+
+        /* New styles for the product summary in payment section */
+        .payment-product-summary-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .payment-product-summary-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .payment-product-summary-image-container {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 60px;
+            border: 1px solid #000000; /* Border changed to black */
+            border-radius: 0.25rem;
+            padding: 2px;
+            flex-shrink: 0;
+            margin-right: 1rem;
+        }
+
+        .payment-product-summary-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 0.1rem;
+        }
+
+        .badge-circle {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #000000;
+            color: #FFFFFF;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            z-index: 1;
+        }
+
+        .payment-product-summary-text {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            color: #212529; /* Text color changed */
+        }
+
+        .payment-product-summary-price-group {
+            display: flex;
+            align-items: center;
+            margin-left: auto;
+        }
+
+        .payment-product-summary-price {
+            font-size: 1em;
+            font-weight: normal;
+            color: #212529; /* Text color changed */
+            margin-right: 0.5rem;
+        }
+
+        .payment-product-summary-icon {
+            width: 20px; /* Retain original width */
+            height: auto;
+            object-fit: contain;
+        }
+
+        /* Styles for the separated promo code input and button */
+        .promo-code-input-wrapper {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 2rem;
+        }
+
+        .promo-code-input-wrapper .form-control {
+            flex-grow: 1;
+            margin-right: 0.5rem;
+        }
+
+        .promo-code-apply-btn {
+            background-color: transparent !important;
+            border: 1px solid #000000 !important; /* Border changed to black */
+            color: #000000 !important; /* Text changed to black */
+            padding: 0.375rem 0.75rem;
+            border-radius: 0.25rem;
+            transition: all 0.2s ease-in-out;
+            flex-shrink: 0;
+        }
+
+        .promo-code-apply-btn:hover {
+            background-color: rgba(0, 0, 0, 0.1) !important;
+        }
+
+        .promo-code-apply-btn:focus {
+            box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.25) !important;
+        }
+
+        /* New styles for the shipping price and icon in the payment summary */
+        .payment-shipping-price-group {
+            display: flex;
+            align-items: center;
+            margin-left: auto;
+        }
+
+        .payment-shipping-price {
+            font-size: 0.9em;
+            font-weight: normal;
+            color: #212529; /* Text color changed */
+            margin-right: 0.5rem;
+        }
+
+        .payment-shipping-icon {
+            width: 18px; /* Retain original width */
+            height: auto;
+            object-fit: contain;
+        }
+
+        /* New styles for the total price and icon in the payment summary */
+        .payment-total-price-group {
+            display: flex;
+            align-items: center;
+            margin-left: auto;
+        }
+
+        .payment-total-price {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #212529; /* Text color changed */
+            margin-right: 0.5rem;
+        }
+
+        .payment-total-icon {
+            width: 20px; /* Retain original width */
+            height: auto;
+            object-fit: contain;
+        }
+
+        /* New checkbox styling */
+        .urpay-checkbox {
+            margin-left: 2rem;
+        }
+
+        .urpay-checkbox .form-check-input {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-color: transparent !important;
+            border: 1px solid #000000 !important; /* Border changed to black */
+            border-radius: 0.25rem !important;
+            width: 1.25rem;
+            height: 1.25rem;
+            margin-top: 0.25rem;
+            flex-shrink: 0;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .urpay-checkbox .form-check-input:checked {
+            background-color: #007bff !important;
+            border-color: #007bff !important;
+        }
+        .urpay-checkbox .form-check-input:checked::after {
+            content: '';
+            display: block;
+            width: 5px;
+            height: 10px;
+            background-color: transparent;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            border-radius: 0;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -60%) rotate(45deg);
+        }
+
+        .urpay-checkbox .form-check-input:focus {
+            box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.25) !important;
+        }
+
+        .urpay-checkbox .form-check-label {
+            color: #212529; /* Text color changed */
+            font-weight: normal;
+            font-size: 0.875rem;
+            margin-top: -0.3rem !important;
+            margin-left: 0.5rem !important;
+        }
+
+        /* Smaller font size for UrPay note */
+        #urpayNote {
+            font-size: 0.875rem;
+            color: #212529; /* Text color changed */
+        }
+
+        /* Submit Order Button Color */
+        #submitOrderBtn {
+            background-color: #000000 !important;
+            color: #ffffff !important; /* Keep button text white */
+            margin-top: 1rem;
+        }
+
+        /* Specific styles for the "I confirm I have securely completed my payment via STC Pay." checkbox */
+        #termsCheckboxContainer {
+            margin-left: 2rem;
+            margin-top: 0.5rem !important;
+        }
+
+        #termsCheckboxContainer .form-check-input {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-color: transparent !important;
+            border: 1px solid #000000 !important;
+            border-radius: 0.25rem !important;
+            width: 1.25rem;
+            height: 1.25rem;
+            margin-top: 0.25rem;
+            flex-shrink: 0;
+            transition: all 0.2s ease-in-out;
+        }
+
+        #termsCheckboxContainer .form-check-input:checked {
+            background-color: #007bff !important;
+            border-color: #007bff !important;
+        }
+
+        #termsCheckboxContainer .form-check-input:checked::after {
+            content: '';
+            display: block;
+            width: 5px;
+            height: 10px;
+            background-color: transparent;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            border-radius: 0;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -60%) rotate(45deg);
+        }
+        
+        #termsCheckboxContainer .form-check-input:focus {
+            box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.25) !important;
+        }
+
+        #termsCheckboxContainer .form-check-label {
+            margin-top: -0.3rem !important;
+            margin-left: 0.5rem !important;
+            color: #212529; /* Text color changed */
+        }
+
+        /* Styling for the eco-friendly image */
+        .eco-friendly-icon {
+            height: 1.2em;
+            width: auto;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+        
+        /* General text color changes */
+        .text-white {
+            color: #212529 !important;
+        }
+        label {
+            color: #212529 !important;
+        }
+        .payment-section {
+            color: #212529 !important;
+        }
+        
+        .order-summary-toggle {
+            color: #007bff !important;
+        }
+
+        /* Adjusted border for shipping method container */
+        .shipping-method-container {
+            border: 1px solid #000000 !important; /* Changed to black, 1px */
+            background-color: #f8f9fa !important; /* Added grey background */
+            transition: all 0.2s ease-in-out; /* Add transition for hover */
+            cursor: pointer; /* Make the whole box clickable */
+            padding: 1rem; /* Add padding to the container */
+            border-radius: 0.25rem; /* Rounded corners for the box */
+        }
+        .shipping-method-container:hover {
+            border-color: #712C81 !important; /* Hover effect */
+        }
+        /* Remove padding from the inner div, as it's now on the container */
+        .shipping-method-container > div.d-flex.flex-column.w-100 {
+            padding: 0 !important;
+        }
+        
+        .saudi-flag {
+            width: 20px;
+            height: auto;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+
+        .payment-method-container {
+            cursor: pointer;
+        }
+        
+        /* Secure payment text and icon */
+        .secure-payment-info {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start; /* Changed from center */
+            margin-bottom: 0.75rem; /* Added margin-bottom */
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+
+        .secure-payment-info svg {
+            width: 14px;
+            height: 14px;
+            margin-right: 4px;
+            fill: #6c757d;
+        }
+        
+        /* Guide link styling */
+        .guide-link-wrapper {
+            text-align: left;
+            width: 100%;
+            margin-top: 0.5rem; /* Moved down slightly */
+        }
+        .guide-link {
+            display: inline-block;
+            color: #000000;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            font-style: italic;
+        }
+        .guide-link:hover {
+            text-decoration: underline;
+        }
+        .guide-link:focus, .guide-link:active {
+            outline: none !important;
+            box-shadow: none !important;
+            text-decoration: underline;
+        }
+        
+        /* Modal styling */
+        .modal-content {
+            border-radius: 0.5rem;
+            border: none; /* Removed white outline */
+        }
+        .modal-body img {
+            max-width: 100%;
+            height: auto;
+        }
+        .modal-header .close {
+            color: #6c757d;
+            opacity: 1;
+        }
+
+
+    </style>
+</head>
+<body>
+    <!-- Main content wrapper for form and video -->
+    <div class="main-content-wrapper">
+        <!-- Main container for layout, ensuring max-width and aligning to start -->
+        <div class="form-container">
+            <!-- Collapsible content for the order summary -->
+            <div class="collapse" id="orderSummaryCollapse">
+                <div class="order-summary-content">
+                    <div class="d-flex align-items-center">
+                        <!-- Image with badge container -->
+                        <div class="image-with-badge-container">
+                            <img src="https://res.cloudinary.com/dsrids98p/image/upload/v1757750493/1_fkpaed.png" alt="Product Image" class="product-image">
+                            <span class="badge-circle">1</span>
+                        </div>
+                        <div class="d-flex flex-column order-summary-text-group">
+                            <span class="product-name font-weight-bold">Connoisseur Bleu À Paris</span>
+                            <span>Shipping</span>
+                            <span>Total</span>
+                        </div>
+                    </div>
+                    <div class="order-summary-prices">
+                        <div class="d-flex align-items-center font-weight-bold">
+                            <span id="dropdownProductPrice">-149</span>
+                            <img src="https://res.cloudinary.com/dsrids98p/image/upload/v1753621989/Saudi_Riyal_Symbol-1_mkcuio.png" alt="SAR" class="payment-product-summary-icon ml-1">
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <span id="dropdownShippingPrice">-9</span>
+                            <img src="https://res.cloudinary.com/dsrids98p/image/upload/v1753621989/Saudi_Riyal_Symbol-1_mkcuio.png" alt="SAR" class="payment-product-summary-icon ml-1">
+                        </div>
+                        <div class="d-flex align-items-center font-weight-bold">
+                            <span id="dropdownTotalPrice">-158</span>
+                            <img src="https://res.cloudinary.com/dsrids98p/image/upload/v1753621989/Saudi_Riyal_Symbol-1_mkcuio.png" alt="SAR" class="payment-product-summary-icon ml-1">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <form action="https://script.google.com/macros/s/AKfycbzX8nCAX3hQlwhev5qkJLk48kKLwVjz-NzzIWyjDj7gQ6YH8U-BAdmIi6sd1V3R_D8DyQ/exec" method="POST" class="w-100 form-content-padding" id="mainForm">
+                <div class="form-inner-content">
+                    <!-- Hidden input for Unique Order Number (will be generated by Apps Script) -->
+                    <input type="hidden" id="uniqueOrderNumber" name="order_number">
+                    <!-- Hidden input for Final Price -->
+                    <input type="hidden" id="finalPriceInput" name="final_price">
+                    <!-- Hidden input to indicate submission type for the main form -->
+                    <input type="hidden" id="submissionType" name="submission_type" value="full_form">
+                    <!-- Hidden input for selected variant -->
+                    <input type="hidden" id="selectedVariant" name="selected_variant">
+                    <input type="hidden" name="product" value="Connoisseur Bleu À Paris">
+
+                    <!-- New container for image, text, and line -->
+                    <div class="product-info-line-container">
+                        <div class="d-flex align-items-center mb-3">
+                            <!-- Image with badge container -->
+                            <div class="image-with-badge-container-fitting">
+                                <img src="https://res.cloudinary.com/dsrids98p/image/upload/v1757750493/1_fkpaed.png" alt="Product Image" class="product-image-fitting" id="mainProductImage">
+                                <span class="badge-circle-fitting">1</span>
+                            </div>
+                            <!-- Text beside the image -->
+                            <div class="product-info-text-group">
+                                <div id="mainProductName" class="font-weight-bold">Connoisseur Bleu À Paris</div>
+                                <div class="font-italic text-small-italic font-weight-normal"><span id="selectedFittingText"></span></div>
+                            </div>
+                            <!-- "Great choice!" text -->
+                            <div class="great-choice-text">Great choice!</div>
+                        </div>
+                        <!-- White line -->
+                        <div class="white-horizontal-line mb-4"></div>
+                    </div>
+
+                    <!-- Label for the Fitting section -->
+                    <label class="font-weight-bold text-lg mb-2">Fitting</label>
+                    <!-- Variant selection boxes -->
+                    <div class="variant-box-container">
+                        <div class="variant-box" data-variant="XS">XS</div>
+                        <div class="variant-box" data-variant="S">S</div>
+                        <div class="variant-box" data-variant="M">M</div>
+                        <div class="variant-box" data-variant="L">L</div>
+                    </div>
+
+                    <!-- Label for the Contact input field -->
+                    <label for="myTextField" class="font-weight-bold text-lg mb-2">Contact</label>
+                    <!-- The Email input field -->
+                    <input
+                        type="email"
+                        class="form-control mb-4"
+                        id="myTextField"
+                        name="contact_info"
+                        placeholder="Email"
+                        required
+                        pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+                        title="Please enter a valid email address."
+                    >
+                    <!-- The Phone Number input field -->
+                    <input
+                        type="tel"
+                        class="form-control mb-4"
+                        id="phoneNumberField"
+                        name="phone_number"
+                        placeholder="Phone Number"
+                        required
+                        pattern="\d{7,15}"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                        title="Please enter a valid phone number with 7 to 15 digits."
+                    >
+
+
+                    <!-- Label for Delivery -->
+                    <label for="countryRegionField" class="font-weight-bold text-lg mt-4 mb-2">Delivery</label>
+                    <!-- Input field for Country/region with datalist (wrapper removed) -->
+                    <input
+                        type="text"
+                        list="countryOptions"
+                        class="form-control mb-4"
+                        id="countryRegionField"
+                        name="country_region"
+                        placeholder="Select or type your country/region"
+                        required
+                    >
+                    <datalist id="countryOptions">
+                        <option value="Saudi Arabia">
+                        <option value="Afghanistan">
+                        <option value="Albania">
+                        <option value="Algeria">
+                        <option value="American Samoa">
+                        <option value="Andorra">
+                        <option value="Angola">
+                        <option value="Anguilla">
+                        <option value="Antarctica">
+                        <option value="Antigua and Barbuda">
+                        <option value="Argentina">
+                        <option value="Armenia">
+                        <option value="Aruba">
+                        <option value="Australia">
+                        <option value="Austria">
+                        <option value="Azerbaijan">
+                        <option value="Bahamas">
+                        <option value="Bahrain">
+                        <option value="Bangladesh">
+                        <option value="Barbados">
+                        <option value="Belarus">
+                        <option value="Belgium">
+                        <option value="Belize">
+                        <option value="Benin">
+                        <option value="Bermuda">
+                        <option value="Bhutan">
+                        <option value="Bolivia (Plurinational State of)">
+                        <option value="Bonaire, Sint Eustatius and Saba">
+                        <option value="Bosnia and Herzegovina">
+                        <option value="Botswana">
+                        <option value="Cabo Verde">
+                        <option value="Cambodia">
+                        <option value="Cameroon">
+                        <option value="Canada">
+                        <option value="Cayman Islands">
+                        <option value="Central African Republic">
+                        <option value="Chad">
+                        <option value="Chile">
+                        <option value="China">
+                        <option value="Christmas Island">
+                        <option value="Cocos (Keeling) Islands">
+                        <option value="Colombia">
+                        <option value="Comoros">
+                        <option value="Congo (Democratic Republic of the)">
+                        <option value="Congo">
+                        <option value="Cook Islands">
+                        <option value="Costa Rica">
+                        <option value="Côte d'Ivoire">
+                        <option value="Croatia">
+                        <option value="Cuba">
+                        <option value="Curaçao">
+                        <option value="Cyprus">
+                        <option value="Czechia">
+                        <option value="Denmark">
+                        <option value="Djibouti">
+                        <option value="Dominican Republic">
+                        <option value="Ecuador">
+                        <option value="Egypt">
+                        <option value="El Salvador">
+                        <option value="Equatorial Guinea">
+                        <option value="Eritrea">
+                        <option value="Estonia">
+                        <option value="Eswatini">
+                        <option value="Ethiopia">
+                        <option value="Falkland Islands (Malvinas)">
+                        <option value="Faroe Islands">
+                        <option value="Fiji">
+                        <option value="Finland">
+                        <option value="France">
+                        <option value="French Guiana">
+                        <option value="French Polynesia">
+                        <option value="French Southern Territories">
+                        <option value="Gabon">
+                        <option value="Gambia">
+                        <option value="Georgia">
+                        <option value="Germany">
+                        <option value="Ghana">
+                        <option value="Gibraltar">
+                        <option value="Greece">
+                        <option value="Greenland">
+                        <option value="Grenada">
+                        <option value="Guadeloupe">
+                        <option value="Guam">
+                        <option value="Guatemala">
+                        <option value="Guernsey">
+                        <option value="Guinea">
+                        <option value="Guinea-Bissau">
+                        <option value="Guyana">
+                        <option value="Haiti">
+                        <option value="Heard Island and McDonald Islands">
+                        <option value="Holy See">
+                        <option value="Honduras">
+                        <option value="Hong Kong">
+                        <option value="Hungary">
+                        <option value="Iceland">
+                        <option value="India">
+                        <option value="Iran (Islamic Republic of)">
+                        <option value="Iraq">
+                        <option value="Ireland">
+                        <option value="Isle of Man">
+                        <option value="Israel">
+                        <option value="Italy">
+                        <option value="Jamaica">
+                        <option value="Jersey">
+                        <option value="Jordan">
+                        <option value="Kazakhstan">
+                        <option value="Kenya">
+                        <option value="Kiribati">
+                        <option value="Korea (Democratic People's Republic of)">
+                        <option value="Korea (Republic of)">
+                        <option value="Kuwait">
+                        <option value="Kyrgyzstan">
+                        <option value="Lao People's Democratic Republic">
+                        <option value="Latvia">
+                        <option value="Lebanon">
+                        <option value="Lesotho">
+                        <option value="Liberia">
+                        <option value="Libya">
+                        <option value="Liechtenstein">
+                        <option value="Luxembourg">
+                        <option value="Macao">
+                        <option value="Madagascar">
+                        <option value="Malawi">
+                        <option value="Malaysia">
+                        <option value="Maldives">
+                        <option value="Mali">
+                        <option value="Malta">
+                        <option value="Marshall Islands">
+                        <option value="Martinique">
+                        <option value="Mauritania">
+                        <option value="Mauritius">
+                        <option value="Mayotte">
+                        <option value="Mexico">
+                        <option value="Micronesia (Federated States of)">
+                        <option value="Moldova (Republic of)">
+                        <option value="Monaco">
+                        <option value="Mongolia">
+                        <option value="Montenegro">
+                        <option value="Montserrat">
+                        <option value="Morocco">
+                        <option value="Mozambique">
+                        <option value="Myanmar">
+                        <option value="Namibia">
+                        <option value="Nauru">
+                        <option value="Nepal">
+                        <option value="Norway">
+                        <option value="Oman">
+                        <option value="Pakistan">
+                        <option value="Palau">
+                        <option value="Palestine, State of">
+                        <option value="Panama">
+                        <option value="Papua New Guinea">
+                        <option value="Paraguay">
+                        <option value="Peru">
+                        <option value="Philippines">
+                        <option value="Pitcairn">
+                        <option value="Poland">
+                        <option value="Portugal">
+                        <option value="Puerto Rico">
+                        <option value="Qatar">
+                        <option value="Réunion">
+                        <option value="Romania">
+                        <option value="Russian Federation">
+                        <option value="Rwanda">
+                        <option value="Saint Barthélemy">
+                        <option value="Saint Helena, Ascension and Tristan da Cunha">
+                        <option value="Saint Kitts and Nevis">
+                        <option value="Saint Lucia">
+                        <option value="Saint Martin (French part)">
+                        <option value="Saint Pierre and Miquelon">
+                        <option value="Saint Vincent and the Grenadines">
+                        <option value="Virgin Islands (British)">
+                        <option value="Virgin Islands (U.S.)">
+                        <option value="Wallis and Futuna">
+                        <option value="Western Sahara">
+                        <option value="Yemen">
+                        <option value="Zimbabwe">
+                    </datalist>
+
+                    <div class="form-row mb-4">
+                        <div class="col">
+                            <!-- wrapper removed -->
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="firstNameField"
+                                name="first_name"
+                                placeholder="First Name (optional)"
+                            >
+                        </div>
+                        <div class="col">
+                            <!-- wrapper removed -->
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="lastNameField"
+                                name="last_name"
+                                placeholder="Last Name"
+                                required
+                            >
+                        </div>
+                    </div>
+
+                    <!-- wrapper removed -->
+                    <input
+                        type="text"
+                        class="form-control mb-4"
+                        id="addressField"
+                        name="address"
+                        placeholder="Address"
+                        required
+                    >
+
+                    <!-- wrapper removed -->
+                    <input
+                        type="text"
+                        class="form-control mb-4"
+                        id="apartmentSuiteField"
+                        name="apartment_suite"
+                        placeholder="Apartment, suite, etc, (optional)"
+                    >
+
+                    <div class="form-row mb-4">
+                        <div class="col">
+                            <!-- wrapper removed -->
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="cityField"
+                                name="city"
+                                placeholder="City"
+                                required
+                            >
+                        </div>
+                        <div class="col">
+                            <!-- wrapper removed -->
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="postalCodeField"
+                                name="postal_code"
+                                placeholder="Postal code (optional)"
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Shipping method heading -->
+                    <div class="font-weight-bold text-lg mt-4 mb-2">Shipping method</div>
+
+                    <!-- Radio button for Shipping Method -->
+                    <div class="d-flex align-items-center w-100 mb-4 shipping-method-container rounded">
+                        <input
+                            type="radio"
+                            id="shippingMadeOnDemand"
+                            name="shipping_method"
+                            value="madeOnDemand"
+                            class="mr-3 align-self-start mt-1"
+                            checked
+                        >
+                        <div class="d-flex flex-column w-100">
+                            <div class="font-weight-bold">Estimated Delivery to</div>
+                            <div class="d-flex align-items-center my-1">
+                                <span>Saudi Arabia</span>
+                                <img src="https://res.cloudinary.com/dsrids98p/image/upload/v1756300157/saudi-arabia_amwfwx.webp" alt="Saudi Arabia Flag" class="saudi-flag">
+                            </div>
+                            <div id="shippingDateRange" class="my-1"></div>
+                            <div class="d-flex align-items-center w-100 mt-1">
+                                <small class="text-muted">Priority Shipping starting from 9 SAR</small>
+                                <small class="text-dark shipping-price" style="margin-right: 0.5rem; font-weight: normal;">9.00SAR</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Method heading - MOVED HERE -->
+                    <div class="font-weight-bold text-lg mt-4 mb-2">Payment Method</div>
+
+                    <!-- Wrapper for payment method options for mobile styling -->
+                    <div id="paymentMethodsWrapper" class="mb-4">
+                        <!-- Radio button for STC Bank -->
+                        <div class="d-flex align-items-center w-100 payment-method-container">
+                            <input
+                                type="radio"
+                                id="paymentSTCB"
+                                name="payment_method"
+                                value="stcPay"
+                                class="mr-3"
+                                checked
+                            >
+                            <div class="payment-method-text-container">
+                                <img src="https://res.cloudinary.com/dsrids98p/image/upload/v1753194876/stc_bankradio_button_cciinw.png" alt="STC Bank Payment Logo" class="stc-bank-radio-image">
+                            </div>
+                        </div>
+
+                        <!-- Radio button for Credit Card -->
+                        <div class="d-flex align-items-center w-100 payment-method-container">
+                            <input
+                                type="radio"
+                                id="paymentCreditCard"
+                                name="payment_method"
+                                value="urpay"
+                                class="mr-3"
+                            >
+                            <div class="payment-method-text-container">
+                                <img src="https://res.cloudinary.com/dsrids98p/image/upload/v1753194829/urpay_radio_button_imaye_zo1xcc.png" alt="Credit Card Payment Logo" class="stc-bank-radio-image">
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- Error message container -->
+                    <div id="errorMessage" class="error-message">
+                        Please fill in all required fields.
+                    </div>
+
+                    <!-- Secure payment info - MOVED HERE -->
+                    <div class="secure-payment-info">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="bi bi-lock-fill">
+                            <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
+                        </svg>
+                        <span>Secure</span>
+                    </div>
+
+                    <!-- New Static "Continue" Button -->
+                    <button type="button" id="proceedToPaymentBtn" class="btn btn-dark w-100" style="height: 60px; border-radius: 0.5rem; margin-top: 1.5rem; margin-bottom: 1rem; font-size: 1.2rem; font-weight: 500; background-color: #000000 !important;">
+                        Continue
+                    </button>
+                    <small id="proceedToPaymentStatus" class="mt-2" style="display: none;"></small>
+                </div>
+
+                <!-- Payment section - hidden by default, revealed by JS -->
+                <div id="paymentSection" class="font-weight-bold text-lg mb-3 d-flex flex-column align-items-start position-relative form-content-padding">
+                    <div class="form-inner-content">
+                        <!-- STC Bank Logo now above the first white line -->
+                        <img id="paymentSectionLogo" src="https://ik.imagekit.io/rxjszfhkf/stc%20bank.png?Updatedat=1752498421308" alt="STC Bank Logo" class="stc-bank-logo-payment">
+
+                        <!-- New white line -->
+                        <div class="white-horizontal-line mb-4"></div>
+
+                        <!-- Product summary in payment section -->
+                        <div class="payment-product-summary-container mb-4"> <!-- Increased margin-bottom -->
+                            <div class="payment-product-summary-left">
+                                <div class="payment-product-summary-image-container">
+                                    <img src="https://res.cloudinary.com/dsrids98p/image/upload/v1757750493/1_fkpaed.png" alt="Product Image" class="payment-product-summary-image">
+                                    <span class="badge-circle">1</span>
+                                </div>
+                                <div class="payment-product-summary-text">
+                                    <div class="font-weight-bold">Connoisseur Bleu À Paris</div>
+                                    <div class="font-italic text-small-italic font-weight-normal"><span id="paymentSelectedFittingText"></span></div>
+                                </div>
+                            </div>
+                                <div class="payment-product-summary-price-group">
+                                <span id="paymentProductPrice" class="payment-product-summary-price">149</span>
+                                <img src="https://res.cloudinary.com/dsrids98p/image/upload/v1753621989/Saudi_Riyal_Symbol-1_mkcuio.png" alt="SAR" class="payment-product-summary-icon">
+                                </div>
+                            </div>
+
+                            <!-- Promo Code text field and Apply button -->
+                            <div class="promo-code-input-wrapper mt-4"> <!-- Added mt-4 for spacing -->
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    id="promoCodeFieldPayment"
+                                    name="promo_code_payment"
+                                    placeholder="Discount code or Gift card"
+                                >
+                                <button class="btn promo-code-apply-btn" type="button" id="applyPromoCodeBtnPayment">Apply</button>
+                            </div>
+                            <small id="promoCodeStatusPayment" class="mt-1" style="display: none;"></small>
+
+                            <!-- New white line under promo code field -->
+                            <div class="white-horizontal-line mb-4"></div>
+
+                            <!-- Shipping and Total details -->
+                            <div class="d-flex flex-column w-100 mt-3"> <!-- Added mt-3 for spacing after the line -->
+                                <!-- Shipping row -->
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="font-weight-normal">Shipping</div>
+                                    <div class="payment-shipping-price-group">
+                                        <span id="paymentShippingPrice" class="payment-shipping-price">9</span>
+                                        <img src="https://res.cloudinary.com/dsrids98p/image/upload/v1753621989/Saudi_Riyal_Symbol-1_mkcuio.png" alt="Shipping Icon" class="payment-shipping-icon">
+                                    </div>
+                                </div>
+
+                                <!-- Total row -->
+                                <div class="d-flex justify-content-between align-items-center mt-3 pt-2" style="border-top: 1px solid rgba(0,0,0,0.3);">
+                                    <div class="font-weight-bold">Total</div>
+                                    <div class="payment-total-price-group">
+                                        <span id="totalPrice" class="payment-total-price">158</span>
+                                        <img src="https://res.cloudinary.com/dsrids98p/image/upload/v1753621989/Saudi_Riyal_Symbol-1_mkcuio.png" alt="Total Icon" class="payment-total-icon">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Conditional Note text -->
+                            <div id="urpayNote" class="mt-4" style="display: none;">
+                                <strong>Note:</strong> Securely scan the QR code on the urpay app and submit your total to place your total.
+                            </div>
+
+                            <!-- In-form Video Container -->
+                            <div id="paymentMethodVideoContainer" class="payment-method-video-container">
+                                <video id="paymentMethodVideo" class="payment-method-video" muted playsinline crossOrigin="anonymous">
+                                    <source src="" type="video/mp4">
+                                    Your browser does not support the video tag.
+                                </video>
+                                <span class="video-overlay-text" id="videoOverlayText">here</span>
+                                <span class="phone-overlay-text" id="phoneNumberOverlay">0552383515</span>
+                                <span class="copied-message" id="copiedMessage">Copied</span>
+                            </div>
+
+                            <!-- New Optional Checkbox for Delivery Updates -->
+                            <div class="form-check mb-3 mt-4" id="deliveryUpdatesCheckboxContainer">
+                                <input class="form-check-input" type="checkbox" value="yes" id="deliveryUpdatesCheckbox" name="delivery_updates" required>
+                                <label class="form-check-label text-sm" for="deliveryUpdatesCheckbox">
+                                    Receive Daily Delivery updates at your Email
+                                </label>
+                            </div>
+
+                            <!-- New Acknowledge Checkbox -->
+                            <div class="form-check urpay-checkbox mt-3" id="urpayAcknowledgeCheckboxContainer" style="display: none;">
+                                <input class="form-check-input" type="checkbox" value="acknowledged" id="urpayAcknowledgeCheckbox">
+                                <label class="form-check-label" for="urpayAcknowledgeCheckbox">
+                                    I acknowledge I have completed my transaction and transferred the required total
+                                </label>
+                            </div>
+
+                            <!-- Original checkbox for terms and conditions (now conditional) -->
+                            <div class="form-check mb-3 mt-4" id="termsCheckboxContainer">
+                                <input class="form-check-input" type="checkbox" value="acknowledged" id="termsCheckbox">
+                                <label class="form-check-label text-sm" for="termsCheckbox">
+                                    I acknowledge I have completed my transaction and transferred the required total
+                                </label>
+                            </div>
+                            
+                            <!-- Guide Link Wrapper -->
+                            <div class="guide-link-wrapper">
+                                 <span class="guide-link" data-toggle="modal" data-target="#guideModal">
+                                     Help
+                                 </span>
+                            </div>
+                            
+                            <!-- New Submit Order Button -->
+                            <button
+                                type="submit"
+                                id="submitOrderBtn"
+                                class="btn btn-block btn-lg font-weight-semibold py-4 shadow"
+                            >
+                                Submit Order
+                            </button>
+
+                            <!-- Message box for submission status -->
+                            <div id="submissionMessageBox" class="mt-4"></div>
+
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Fixed Video Container (Right Side) -->
+        <div class="video-fixed-container">
+            <video id="fixedBackgroundVideo" class="background-video" muted playsinline preload="auto" crossOrigin="anonymous">
+                <!-- Source will be set by JavaScript -->
+                <source src="" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+
+        <!-- Guide Modal -->
+        <div class="modal fade" id="guideModal" tabindex="-1" aria-labelledby="guideModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header border-0">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <img src="https://res.cloudinary.com/dsrids98p/image/upload/v1756302884/sure_zsboil.png" alt="Payment Guide">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- UrPay Guide Modal -->
+        <div class="modal fade" id="urpayGuideModal" tabindex="-1" aria-labelledby="urpayGuideModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header border-0">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <img src="https://res.cloudinary.com/dsrids98p/image/upload/v1756317105/TURTORIAL_urpay_bxhqbu.png" alt="UrPay Payment Guide">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Bootstrap 4 JS, Popper.js, and jQuery -->
+        <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+        <script type="module">
+            document.addEventListener('DOMContentLoaded', function() {
+                // Initialize Bootstrap Tooltips
+                $(function () {
+                    $('[data-toggle="tooltip"]').tooltip()
+                });
+
+                // --- CONFIGURATION ---
+                // To change the product name, just update the value in the line below.
+                const PRODUCT_NAME = "Till Death do us part";
+                // --- END CONFIGURATION ---
+
+                const appsScriptUrl = 'https://script.google.com/macros/s/AKfycbyzLyWJW4LRGQJ10EaOV9otoimw6OSdd3y8DZrRVachBvMQk4OUaEgFeXwABVbIYDHdqQ/exec'; // Your Apps Script URL
+
+                const proceedToPaymentBtn = document.getElementById('proceedToPaymentBtn');
+                const promoCodeFieldPayment = document.getElementById('promoCodeFieldPayment');
+                const applyPromoCodeBtnPayment = document.getElementById('applyPromoCodeBtnPayment');
+                const promoCodeStatusPayment = document.getElementById('promoCodeStatusPayment');
+                const paymentSection = document.getElementById('paymentSection');
+                const mainForm = document.getElementById('mainForm');
+                const submitOrderBtn = document.getElementById('submitOrderBtn');
+                const submissionMessageBox = document.getElementById('submissionMessageBox');
+                const finalPriceInput = document.getElementById('finalPriceInput');
+                const fixedBackgroundVideo = document.getElementById('fixedBackgroundVideo');
+                
+                // Price display elements
+                const collapsedTotalPriceElement = document.getElementById('collapsedTotalPrice');
+                const dropdownProductPriceElement = document.getElementById('dropdownProductPrice');
+                const dropdownShippingPriceElement = document.getElementById('dropdownShippingPrice');
+                const dropdownTotalPriceElement = document.getElementById('dropdownTotalPrice');
+                const paymentProductPrice = document.getElementById('paymentProductPrice');
+                const paymentShippingPrice = document.getElementById('paymentShippingPrice');
+                const totalPriceElement = document.getElementById('totalPrice');
+
+                const paymentMethodVideo = document.getElementById('paymentMethodVideo');
+                const paymentMethodVideoContainer = document.getElementById('paymentMethodVideoContainer');
+                const videoOverlayText = document.querySelector('.video-overlay-text');
+                const phoneNumberOverlay = document.getElementById('phoneNumberOverlay');
+                const copiedMessage = document.getElementById('copiedMessage');
+                const proceedToPaymentStatus = document.getElementById('proceedToPaymentStatus');
+                const shippingDateRangeElement = document.getElementById('shippingDateRange');
+
+                const termsCheckboxContainer = document.getElementById('termsCheckboxContainer');
+                const termsCheckbox = document.getElementById('termsCheckbox');
+
+                const paymentSTCB = document.getElementById('paymentSTCB');
+                const paymentCreditCard = document.getElementById('paymentCreditCard');
+                const paymentSectionLogo = document.getElementById('paymentSectionLogo');
+                const paymentSelectedFittingText = document.getElementById('paymentSelectedFittingText');
+                
+                const urpayNote = document.getElementById('urpayNote');
+                const urpayAcknowledgeCheckboxContainer = document.getElementById('urpayAcknowledgeCheckboxContainer');
+                const urpayAcknowledgeCheckbox = document.getElementById('urpayAcknowledgeCheckbox');
+                const guideLink = document.querySelector('.guide-link');
+                const mainProductImage = document.getElementById('mainProductImage');
+
+                // In-form video sources
+                const stcInFormVideoSrc = "https://res.cloudinary.com/dsrids98p/video/upload/v1753192797/0722_1_hvfb81.mp4";
+                const urpayInFormVideoSrc = "https://res.cloudinary.com/dsrids98p/video/upload/v1753192883/0722_1_xbcgbs.mp4";
+
+                // Fixed background video sources
+                const fixedSTCPayBackgroundVideoInitialSrc = "https://res.cloudinary.com/dsrids98p/video/upload/v1753098874/0721_2_qx6oro.mp4";
+                const fixedSTCPayBackgroundVideoFinalSrc = "https://res.cloudinary.com/dsrids98p/video/upload/v1753197423/ewh_opj83z.mp4";
+                const fixedUrpayBackgroundVideoSrc = "https://res.cloudinary.com/dsrids98p/video/upload/v1756316083/urpay_viceood_zy3jd6.mp4";
+
+                const variantBoxes = document.querySelectorAll('.variant-box');
+                const selectedVariantInput = document.getElementById('selectedVariant');
+                const selectedFittingText = document.getElementById('selectedFittingText');
+
+                const stcPaymentLogoSrc = "https://ik.imagekit.io/rxjszfhkf/stc%20bank.png?Updatedat=1752498421308";
+                const urpayPaymentLogoSrc = "https://res.cloudinary.com/dsrids98p/image/upload/v1753194829/urpay_radio_button_imaye_zo1xcc.png";
+
+                // --- Set Product Name Dynamically ---
+                function setProductName() {
+                    // Set hidden input value for form submission
+                    const productInput = document.querySelector('input[name="product"]');
+                    if (productInput) {
+                        productInput.value = PRODUCT_NAME;
+                    }
+                    // Update all display elements with the product name
+                    document.querySelectorAll('.product-name, #mainProductName, .payment-product-summary-text .font-weight-bold').forEach(el => {
+                        if(el) el.textContent = PRODUCT_NAME;
+                    });
+                }
+                setProductName();
+                // --- End Set Product Name ---
+
+                // --- Unified Pricing State ---
+                const baseProductPrice = 149; // Price updated
+                const shippingCost = 9;
+                const promoDiscount = 20;
+                let isPromoApplied = false;
+
+                let currentOrderId = null; // Stores the order ID from the first submission
+                let currentSessionId = null; // Stores the session ID for linking submissions
+
+                // Flags for video playback control
+                let hasInFormVideoPlayed = false;
+                let inFormVideoPlayTimeout = null;
+                let fixedVideoPrePaused = false; // True if fixed UrPay video is paused at 6s
+
+                // Set crossOrigin for all videos
+                if (fixedBackgroundVideo) {
+                    fixedBackgroundVideo.crossOrigin = "anonymous";
+                }
+                if (paymentMethodVideo) {
+                    paymentMethodVideo.crossOrigin = "anonymous";
+                }
+
+                function getOrdinalSuffix(day) {
+                    if (day > 3 && day < 21) return 'th';
+                    switch (day % 10) {
+                        case 1: return 'st';
+                        case 2: return 'nd';
+                        case 3: return 'rd';
+                        default: return 'th';
+                    }
+                }
+
+                function formatDateRange(startDate, endDate) {
+                    const startDay = startDate.getDate();
+                    const endDay = endDate.getDate();
+                    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                    const startMonth = monthNames[startDate.getMonth()];
+                    const endMonth = monthNames[endDate.getMonth()];
+
+                    if (startMonth === endMonth) {
+                        return `${startDay}${getOrdinalSuffix(startDay)} - ${endDay}${getOrdinalSuffix(endDay)} ${startMonth}`;
+                    } else {
+                        return `${startDay}${getOrdinalSuffix(startDay)} ${startMonth} - ${endDay}${getOrdinalSuffix(endDay)} ${endMonth}`;
+                    }
+                }
+
+                function updateShippingDateRange() {
+                    const today = new Date();
+                    const startDate = new Date(today);
+                    startDate.setDate(today.getDate() + 14);
+
+                    const endDate = new Date(today);
+                    endDate.setDate(today.getDate() + 20);
+
+                    const dateRangeText = formatDateRange(startDate, endDate);
+                    if (shippingDateRangeElement) {
+                        shippingDateRangeElement.innerHTML = `<strong>${dateRangeText}</strong>`;
+                    }
+                }
+
+                function updateDisplayTotal() {
+                    const currentProductPrice = isPromoApplied ? baseProductPrice - promoDiscount : baseProductPrice;
+                    const currentTotal = currentProductPrice + shippingCost;
+
+                    // Update dropdown prices
+                    if (dropdownProductPriceElement) {
+                        dropdownProductPriceElement.textContent = `-${currentProductPrice}`;
+                    }
+                    if (dropdownShippingPriceElement) {
+                        dropdownShippingPriceElement.textContent = `-${shippingCost}`;
+                    }
+                    if (dropdownTotalPriceElement) {
+                        dropdownTotalPriceElement.textContent = `-${currentTotal}`;
+                    }
+                    // Update payment section prices
+                    if (paymentProductPrice) {
+                        paymentProductPrice.textContent = `${currentProductPrice}`;
+                    }
+                    if (paymentShippingPrice) {
+                        paymentShippingPrice.textContent = `${shippingCost}`;
+                    }
+                    if (totalPriceElement) {
+                        totalPriceElement.textContent = `${currentTotal}`;
+                    }
+                    if (finalPriceInput) {
+                        finalPriceInput.value = currentTotal;
+                    }
+                }
+
+                function showPromoStatus(message, isError = false) {
+                    if (promoCodeStatusPayment) {
+                        promoCodeStatusPayment.textContent = message;
+                        promoCodeStatusPayment.style.color = isError ? '#dc3545' : '#28a745';
+                        promoCodeStatusPayment.style.display = 'block';
+                        setTimeout(() => {
+                            if (promoCodeStatusPayment) promoCodeStatusPayment.style.display = 'none';
+                        }, 3000);
+                    }
+                }
+
+                function showSubmissionMessage(message, isError = false) {
+                    if (submissionMessageBox) {
+                        submissionMessageBox.textContent = message;
+                        submissionMessageBox.style.backgroundColor = isError ? '#dc3545' : '#4CAF50';
+                        submissionMessageBox.classList.add('show');
+                        setTimeout(() => {
+                            if (submissionMessageBox) submissionMessageBox.classList.remove('show');
+                        }, 5000);
+                    }
+                }
+
+                if (applyPromoCodeBtnPayment && promoCodeFieldPayment) {
+                    applyPromoCodeBtnPayment.addEventListener('click', function() {
+                        const promoCodeValue = promoCodeFieldPayment.value.trim().toLowerCase();
+                        if (promoCodeValue === 'allforart' || promoCodeValue === 'connoisseurart' || promoCodeValue === 'patronoftheclub') {
+                            if (!isPromoApplied) {
+                                isPromoApplied = true;
+                                showPromoStatus('Promo code applied successfully!', false);
+                            } else {
+                                showPromoStatus('Promo code already applied.', false);
+                            }
+                        } else {
+                            if (isPromoApplied) {
+                                isPromoApplied = false;
+                                promoCodeFieldPayment.value = ''; // Clear the input value
+                                showPromoStatus('Promo code removed.', true);
+                            } else {
+                                showPromoStatus('Invalid promo code.', true);
+                            }
+                        }
+                        updateDisplayTotal();
+                    });
+                }
+
+                // Intersection Observer for in-form video playback
+                let observer;
+                const intersectionOptions = {
+                    root: null, // viewport
+                    rootMargin: '0px',
+                    threshold: 0.1 // 10% of the target is visible
+                };
+
+                const handleIntersection = (entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting && !hasInFormVideoPlayed) {
+                            // Start timer for 2 seconds
+                            if (!inFormVideoPlayTimeout) {
+                                inFormVideoPlayTimeout = setTimeout(async () => {
+                                    if (entry.isIntersecting && !hasInFormVideoPlayed) {
+                                        console.log("In-form video playing after 2-second delay.");
+                                        try {
+                                            await paymentMethodVideo.play();
+                                            paymentMethodVideo.loop = false; // Play once and freeze
+                                            hasInFormVideoPlayed = true;
+                                        } catch (error) {
+                                            console.error("Error playing in-form video via Intersection Observer:", error);
+                                        }
+                                    }
+                                    inFormVideoPlayTimeout = null; // Clear timeout ID
+                                }, 2000); // 2 second delay
+                            }
+                        } else {
+                            // If not intersecting, clear any pending timeout
+                            if (inFormVideoPlayTimeout) {
+                                clearTimeout(inFormVideoPlayTimeout);
+                                inFormVideoPlayTimeout = null;
+                            }
+                        }
+                    });
+                };
+
+                // Event listener for "Proceed to Payment" button - FIRST SUBMISSION
+                if (proceedToPaymentBtn) {
+                    proceedToPaymentBtn.addEventListener('click', async function(event) {
+                        event.preventDefault();
+
+                        const errorMessage = document.getElementById('errorMessage');
+                        let allRequiredFilled = true;
+                        let firstMissingElement = null;
+
+                        // Validation for initial fields
+                        if (!selectedVariantInput || !selectedVariantInput.value) {
+                            allRequiredFilled = false;
+                            if (errorMessage) errorMessage.textContent = 'Please select a fitting.';
+                            if (!firstMissingElement) {
+                                firstMissingElement = document.querySelector('.variant-box-container');
+                            }
+                        }
+
+                        const requiredFieldIds = [
+                            'myTextField',
+                            'phoneNumberField',
+                            'countryRegionField',
+                            'lastNameField',
+                            'addressField',
+                            'cityField'
+                        ];
+
+                        requiredFieldIds.forEach(id => {
+                            const element = document.getElementById(id);
+                            if (element) {
+                                if (element.value.trim() === '') {
+                                    allRequiredFilled = false;
+                                    element.classList.add('is-invalid');
+                                    element.style.borderColor = '#dc3545';
+                                    if (!firstMissingElement) {
+                                        firstMissingElement = element;
+                                    }
+                                } else {
+                                    element.classList.remove('is-invalid');
+                                    element.style.borderColor = '';
+                                }
+                            }
+                        });
+
+                        const selectedShippingMethod = document.querySelector('input[name="shipping_method"]:checked');
+                        const radioContainer = document.querySelector('.d-flex.align-items-center.w-100.mb-4.shipping-method-container');
+                        if (!selectedShippingMethod) {
+                            allRequiredFilled = false;
+                            if (radioContainer) {
+                                radioContainer.style.border = '1px solid #dc3545';
+                                radioContainer.style.borderRadius = '0.25rem';
+                                if (!firstMissingElement) {
+                                    firstMissingElement = radioContainer;
+                                }
+                            }
+                        } else {
+                            if (radioContainer) {
+                                radioContainer.style.border = ''; /* Remove inline border style */
+                            }
+                        }
+
+                        const selectedPaymentMethodRadio = document.querySelector('input[name="payment_method"]:checked');
+                        if (!selectedPaymentMethodRadio) {
+                            allRequiredFilled = false;
+                            if (!firstMissingElement) {
+                                firstMissingElement = document.querySelector('.font-weight-bold.text-lg.mt-4.mb-2');
+                            }
+                        }
+
+                        if (!allRequiredFilled) {
+                            if (errorMessage) errorMessage.classList.add('show');
+                            if (firstMissingElement) {
+                                firstMissingElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            }
+                            return;
+                        } else {
+                            if (errorMessage) {
+                                errorMessage.classList.remove('show');
+                                errorMessage.textContent = 'Please fill in all required fields.';
+                            }
+                        }
+
+                        // --- Scroll to payment section immediately after validation passes ---
+                        if (paymentSection) {
+                            // Update the payment section logo based on the current selection
+                            if (paymentCreditCard.checked) {
+                                if (paymentSectionLogo) {
+                                    paymentSectionLogo.src = urpayPaymentLogoSrc;
+                                    paymentSectionLogo.alt = "UrPay Logo";
+                                }
+                            } else { // Assumes paymentSTCB is the only other option and is checked
+                                if (paymentSectionLogo) {
+                                    paymentSectionLogo.src = stcPaymentLogoSrc;
+                                    paymentSectionLogo.alt = "STC Bank Logo";
+                                }
+                            }
+
+                            paymentSection.classList.add('show-payment-section');
+                            paymentSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+                            // --- Fixed Background Video Logic on Proceed to Payment ---
+                            if (fixedBackgroundVideo) {
+                                // Only play fixed background video on desktop
+                                if (window.innerWidth >= 992) { // Check for desktop breakpoint
+                                    if (fixedVideoPrePaused) { // If UrPay was selected and video was paused at 6s
+                                        console.log("Resuming fixed UrPay background video from 6s.");
+                                        fixedBackgroundVideo.play();
+                                        fixedBackgroundVideo.loop = false; // Freeze at last frame
+                                    } else if (paymentSTCB.checked) { // If STC Pay was selected
+                                        console.log("Switching fixed STC Pay background video to final version.");
+                                        fixedBackgroundVideo.src = fixedSTCPayBackgroundVideoFinalSrc;
+                                        fixedBackgroundVideo.load();
+                                        fixedBackgroundVideo.play();
+                                        fixedBackgroundVideo.loop = false; // Freeze at last frame
+                                    }
+                                    fixedBackgroundVideo.style.opacity = '1'; // Ensure video is visible
+                                } else {
+                                    fixedBackgroundVideo.style.display = 'none'; // Ensure video is hidden on mobile
+                                }
+                            }
+
+                            // --- In-Form Video Logic on Proceed to Payment ---
+                            // In-form video should always appear when button is clicked
+                            if (paymentMethodVideoContainer) {
+                                paymentMethodVideoContainer.style.display = 'block'; // Show the container
+                            }
+                            if (paymentMethodVideo) {
+                                hasInFormVideoPlayed = false; // Reset flag for new playback
+                                if (paymentSTCB.checked) {
+                                    paymentMethodVideo.src = stcInFormVideoSrc;
+                                } else if (paymentCreditCard.checked) {
+                                    paymentMethodVideo.src = urpayInFormVideoSrc;
+                                }
+                                paymentMethodVideo.load(); // Load the new source
+                                paymentMethodVideo.currentTime = 0; // Reset to start
+
+                                // Re-initialize Intersection Observer for the in-form video
+                                if (observer) {
+                                    observer.disconnect();
+                                }
+                                observer = new IntersectionObserver(handleIntersection, intersectionOptions);
+                                observer.observe(paymentMethodVideoContainer);
+                                console.log("Intersection Observer initialized for in-form video.");
+                            }
+                        }
+
+                        // --- FIRST SUBMISSION TO APPS SCRIPT ---
+                        proceedToPaymentBtn.disabled = true;
+                        proceedToPaymentBtn.style.opacity = '0.5';
+                        proceedToPaymentStatus.style.display = 'none'; // Ensure it's hidden
+
+                        const initialFormData = new FormData();
+                        currentSessionId = crypto.randomUUID(); // Generate a unique session ID
+                        initialFormData.append('session_id', currentSessionId);
+                        initialFormData.append('submission_type', 'initial_order');
+
+                        // *** FIX: Added this line to ensure the product name is sent ***
+                        initialFormData.append('product', document.querySelector('input[name="product"]').value);
+
+                        initialFormData.append('selected_variant', selectedVariantInput ? selectedVariantInput.value : '');
+                        initialFormData.append('contact_info', document.getElementById('myTextField') ? document.getElementById('myTextField').value : '');
+                        initialFormData.append('phone_number', document.getElementById('phoneNumberField') ? document.getElementById('phoneNumberField').value : '');
+                        initialFormData.append('country_region', document.getElementById('countryRegionField') ? document.getElementById('countryRegionField').value : '');
+                        initialFormData.append('first_name', document.getElementById('firstNameField') ? document.getElementById('firstNameField').value : '');
+                        initialFormData.append('last_name', document.getElementById('lastNameField') ? document.getElementById('lastNameField').value : '');
+                        initialFormData.append('address', document.getElementById('addressField') ? document.getElementById('addressField').value : '');
+                        initialFormData.append('apartment_suite', document.getElementById('apartmentSuiteField') ? document.getElementById('apartmentSuiteField').value : '');
+                        initialFormData.append('city', document.getElementById('cityField') ? document.getElementById('cityField').value : '');
+                        initialFormData.append('postal_code', document.getElementById('postalCodeField') ? document.getElementById('postalCodeField').value : '');
+                        initialFormData.append('shipping_method', selectedShippingMethod ? selectedShippingMethod.value : '');
+                        initialFormData.append('payment_method', selectedPaymentMethodRadio ? selectedPaymentMethodRadio.value : '');
+
+                        console.log("Attempting initial fetch to Apps Script URL:", appsScriptUrl);
+                        try {
+                            const response = await fetch(appsScriptUrl, {
+                                method: 'POST',
+                                body: initialFormData
+                            });
+                            console.log("Initial fetch response received. Status:", response.status);
+                            const result = await response.json();
+                            console.log("Initial fetch result:", result);
+
+                            if (result.success) {
+                                currentOrderId = result.order_number; // Store the generated order ID
+                                sessionStorage.setItem('currentOrderId', currentOrderId); // Persist
+                                sessionStorage.setItem('currentSessionId', currentSessionId); // Persist
+                                console.log("Initial submission successful. Order ID stored in sessionStorage:", sessionStorage.getItem('currentOrderId'), "Session ID stored:", sessionStorage.getItem('currentSessionId'));
+
+                                // Update UI for payment section - make fields transparent
+                                const formInputElements = mainForm.querySelectorAll('.form-control');
+                                formInputElements.forEach(element => {
+                                    element.classList.add('text-transparent-on-save');
+                                });
+
+                                // Make radio button images transparent
+                                const radioImages = document.querySelectorAll('.stc-bank-radio-image');
+                                radioImages.forEach(img => {
+                                    img.classList.add('text-transparent-on-save');
+                                });
+
+                                // Make the shipping method container transparent
+                                const shippingMethodContainer = document.querySelector('.shipping-method-container'); 
+                                if (shippingMethodContainer) {
+                                    shippingMethodContainer.classList.add('text-transparent-on-save');
+                                }
+
+                                // Make variant boxes transparent
+                                const variantBoxes = document.querySelectorAll('.variant-box');
+                                variantBoxes.forEach(box => {
+                                    box.classList.add('text-transparent-on-save');
+                                });
+
+
+                                if (proceedToPaymentBtn) proceedToPaymentBtn.style.opacity = '1'; // Restore opacity
+
+                            } else {
+                                showSubmissionMessage(`Initial submission failed: ${result.message || 'Unknown error'}`, true);
+                            }
+                        } catch (error) {
+                            console.error('Error during initial submission:', error);
+                            showSubmissionMessage(`An error occurred during initial submission: ${error.message}.`, true);
+                        } finally {
+                            proceedToPaymentBtn.disabled = false;
+                        }
+                    });
+                }
+
+                        // Event listener for "Submit Order" button - SECOND SUBMISSION
+                if (submitOrderBtn && mainForm) {
+                    submitOrderBtn.addEventListener('click', async function(event) {
+                        event.preventDefault();
+
+                        // Retrieve order ID and session ID for the final submission
+                        currentOrderId = sessionStorage.getItem('currentOrderId');
+                        currentSessionId = sessionStorage.getItem('currentSessionId');
+
+                        console.log("Attempting final submission. Retrieved Order ID from sessionStorage:", currentOrderId, "Retrieved Session ID from sessionStorage:", currentSessionId);
+
+
+                        if (!currentOrderId || !currentSessionId) {
+                            showSubmissionMessage("Error: Initial order details not found. Please go back and complete the first section.", true);
+                            return;
+                        }
+
+                        // Validation for required delivery updates checkbox
+                        const deliveryUpdatesCheckbox = document.getElementById('deliveryUpdatesCheckbox');
+                        const deliveryUpdatesLabel = document.querySelector('label[for="deliveryUpdatesCheckbox"]');
+                        if (!deliveryUpdatesCheckbox.checked) {
+                            showSubmissionMessage("Please agree to receive delivery updates.", true);
+                            if (deliveryUpdatesLabel) {
+                                deliveryUpdatesLabel.style.outline = '2px solid #dc3545';
+                                deliveryUpdatesLabel.style.outlineOffset = '2px';
+                            }
+                            return;
+                        } else {
+                            if (deliveryUpdatesLabel) {
+                                deliveryUpdatesLabel.style.outline = '';
+                                deliveryUpdatesLabel.style.outlineOffset = '';
+                            }
+                        }
+
+                        submitOrderBtn.disabled = true;
+                        submitOrderBtn.textContent = 'Processing your order...';
+                        submitOrderBtn.style.backgroundColor = '#4a0775';
+
+                        let submissionTimeout = setTimeout(() => {
+                            if (submitOrderBtn && submitOrderBtn.disabled) {
+                                submitOrderBtn.textContent = 'This may take a moment';
+                            }
+                        }, 2000);
+
+                        try {
+                            const finalFormData = new FormData();
+                            finalFormData.append('order_number', currentOrderId); // Send the order ID
+                            finalFormData.append('session_id', currentSessionId); // Send the session ID
+                            finalFormData.append('submission_type', 'final_order');
+
+                            finalFormData.append('final_price', finalPriceInput.value);
+                            finalFormData.append('promo_code_payment', promoCodeFieldPayment ? promoCodeFieldPayment.value : '');
+                            
+                            const deliveryUpdatesCheckbox = document.getElementById('deliveryUpdatesCheckbox');
+                            finalFormData.append('delivery_updates', deliveryUpdatesCheckbox.checked ? 'Yes' : 'No');
+
+                            console.log("Final FormData contents:");
+                            for (let pair of finalFormData.entries()) {
+                                console.log(pair[0] + ': ' + pair[1]);
+                            }
+
+                            console.log("Attempting final fetch to Apps Script URL:", appsScriptUrl);
+                            const response = await fetch(appsScriptUrl, {
+                                method: 'POST',
+                                body: finalFormData
+                            });
+                            console.log("Final fetch response received. Status:", response.status);
+                            const result = await response.json();
+                            console.log("Final fetch result:", result);
+
+                            if (result.success) {
+                                showSubmissionMessage("Order submitted successfully! Thank you.", false);
+                                mainForm.reset();
+                                sessionStorage.removeItem('currentOrderId'); // Clear stored data
+                                sessionStorage.removeItem('currentSessionId'); // Clear stored data
+                                window.location.href = 'https://cvhinv-y2.myshopify.com/pages/blogs?view=order-confirmation';
+                            } else {
+                                showSubmissionMessage(`Order submission failed: ${result.message || 'Unknown error'}`, true);
+                            }
+                        } catch (error) {
+                            console.error('Error during final submission:', error);
+                            showSubmissionMessage(`An error occurred during final submission: ${error.message}.`, true);
+                        } finally {
+                            clearTimeout(submissionTimeout);
+                            if (submitOrderBtn) {
+                                submitOrderBtn.disabled = false;
+                                submitOrderBtn.textContent = 'Submit Order';
+                                submitOrderBtn.style.backgroundColor = '#000000';
+                            }
+                        }
+                    });
+                }
+
+                if (paymentMethodVideo) {
+                    paymentMethodVideo.addEventListener('ended', function() {
+                        if (!this.loop) {
+                            this.pause(); // Freeze at the last frame
+                        }
+                    });
+
+                    // Control "here" text and phone number visibility based on video time
+                    paymentMethodVideo.addEventListener('timeupdate', function() {
+                        // REMOVED logic for 'here' text
+                        videoOverlayText.style.opacity = '0';
+
+                        // STC Pay in-form video: Number at 8.15s, green number
+                        if (paymentSTCB.checked && paymentMethodVideo.src.includes(stcInFormVideoSrc)) {
+                            phoneNumberOverlay.style.color = '#03bb8b'; // Green for STC Pay
+                            if (this.currentTime >= 8.15) {
+                                phoneNumberOverlay.style.opacity = '1';
+                            } else {
+                                phoneNumberOverlay.style.opacity = '0';
+                            }
+                        }
+                        // Credit Card (UrPay) in-form video: Number at 7.15s, blue number
+                        else if (paymentCreditCard.checked && paymentMethodVideo.src.includes(urpayInFormVideoSrc)) {
+                            phoneNumberOverlay.style.color = '#3362a7'; // Blue for UrPay
+                            if (this.currentTime >= 7.15) {
+                                phoneNumberOverlay.style.opacity = '1';
+                            } else {
+                                phoneNumberOverlay.style.opacity = '0';
+                            }
+                        }
+                        else {
+                            // Hide phone number if not the relevant video or not playing
+                            phoneNumberOverlay.style.opacity = '0';
+                        }
+                    });
+
+                    // When video source changes or loads, reset text visibility
+                    paymentMethodVideo.addEventListener('loadeddata', function() {
+                        videoOverlayText.style.opacity = '0'; // Hide initially on new load
+                        phoneNumberOverlay.style.opacity = '0'; // Hide initially on new load
+                        copiedMessage.style.opacity = '0'; // Hide copied message on new load
+                    });
+                }
+
+                // Click-to-copy functionality for the phone number
+                if (phoneNumberOverlay) {
+                    phoneNumberOverlay.addEventListener('click', function() {
+                        const phoneNumber = this.textContent;
+                        const tempInput = document.createElement('textarea'); // Use textarea for better cross-browser support
+                        tempInput.value = phoneNumber;
+                        document.body.appendChild(tempInput);
+                        tempInput.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(tempInput);
+
+                        // Show "Copied" message
+                        if (copiedMessage) {
+                            copiedMessage.style.opacity = '1';
+                            setTimeout(() => {
+                                copiedMessage.style.opacity = '0';
+                            }, 2000); // Fade out after 2 seconds
+                        }
+                    });
+                }
+
+                variantBoxes.forEach(box => {
+                    box.addEventListener('click', function() {
+                        variantBoxes.forEach(b => b.classList.remove('variant-box-selected'));
+                        this.classList.add('variant-box-selected');
+                        if (selectedVariantInput) selectedVariantInput.value = this.dataset.variant;
+                        if (selectedFittingText) selectedFittingText.textContent = this.dataset.variant;
+                        if (paymentSelectedFittingText) paymentSelectedFittingText.textContent = this.dataset.variant;
+                    });
+                });
+
+                async function updateVideoAndPaymentOptionsOnRadioChange() {
+                    // Update Guide Modal Target
+                    if (guideLink) {
+                        if (paymentCreditCard.checked) {
+                            guideLink.setAttribute('data-target', '#urpayGuideModal');
+                        } else {
+                            guideLink.setAttribute('data-target', '#guideModal');
+                        }
+                    }
+                    
+                    if (fixedBackgroundVideo) {
+                        // Get the source element for the fixed background video
+                        const fixedVideoSource = fixedBackgroundVideo.querySelector('source');
+
+                        // Only show fixed background video on desktop
+                        if (window.innerWidth < 992) {
+                            fixedBackgroundVideo.style.display = 'none';
+                            return; // Exit if on mobile
+                        } else {
+                            fixedBackgroundVideo.style.display = 'block'; // Ensure visible on desktop
+                            fixedBackgroundVideo.style.opacity = '1'; // Ensure video is visible
+                        }
+
+                        // Remove previous listeners to prevent multiple bindings
+                        fixedBackgroundVideo.removeEventListener('canplaythrough', fixedBackgroundVideo._playListener);
+                        fixedBackgroundVideo.removeEventListener('error', fixedBackgroundVideo._errorListener);
+                        fixedBackgroundVideo.removeEventListener('ended', fixedBackgroundVideo._freezeListener);
+
+                        // Define new listeners
+                        fixedBackgroundVideo._playListener = async () => {
+                            console.log('Fixed background video canplaythrough event fired. Attempting to play.');
+                            try {
+                                if (paymentCreditCard.checked && fixedVideoPrePaused) {
+                                    fixedBackgroundVideo.currentTime = 6;
+                                    fixedBackgroundVideo.pause();
+                                    fixedVideoPrePaused = true;
+                                    console.log('Fixed UrPay background video paused at 6 seconds on radio change.');
+                                } else {
+                                    fixedBackgroundVideo.currentTime = 0; // Ensure it starts from beginning
+                                    await fixedBackgroundVideo.play();
+                                    fixedBackgroundVideo.loop = false; // Ensure it plays once and freezes
+                                    console.log('Fixed background video started playing from beginning (STC Pay or initial UrPay load).');
+                                }
+                            } catch (error) {
+                                console.error("Error attempting to play fixed background video:", error);
+                            }
+                            fixedBackgroundVideo.removeEventListener('canplaythrough', fixedBackgroundVideo._playListener); // Remove after execution
+                        };
+
+                        fixedBackgroundVideo._errorListener = (e) => {
+                            console.error('Fixed background video encountered an error:', e);
+                            console.error('Video URL:', fixedBackgroundVideo.src);
+                            fixedBackgroundVideo.style.opacity = '0'; // Hide video on error
+                            fixedBackgroundVideo.removeEventListener('error', fixedBackgroundVideo._errorListener); // Remove after execution
+                        };
+
+                        fixedBackgroundVideo._freezeListener = function() {
+                            this.pause(); // Freeze at the last frame
+                            this.currentTime = this.duration; // Ensure it's at the very last frame
+                        };
+
+                        fixedBackgroundVideo.addEventListener('canplaythrough', fixedBackgroundVideo._playListener);
+                        fixedBackgroundVideo.addEventListener('error', fixedBackgroundVideo._errorListener);
+                        fixedBackgroundVideo.addEventListener('ended', fixedBackgroundVideo._freezeListener);
+
+
+                        if (paymentCreditCard.checked) {
+                            if (fixedVideoSource) {
+                                fixedVideoSource.src = fixedUrpayBackgroundVideoSrc;
+                            } else {
+                                fixedBackgroundVideo.src = fixedUrpayBackgroundVideoSrc;
+                            }
+                            fixedBackgroundVideo.loop = false; // UrPay background video plays once and freezes
+                            fixedVideoPrePaused = false; // Reset flag
+                            
+                            if (urpayNote) urpayNote.style.display = 'block';
+                            if (urpayAcknowledgeCheckboxContainer) {
+                                urpayAcknowledgeCheckboxContainer.style.display = 'block';
+                            }
+                            if (termsCheckboxContainer) termsCheckboxContainer.style.display = 'none';
+                            if (termsCheckbox) {
+                                termsCheckbox.checked = false;
+                            }
+
+                            // Add urpay-active class to paymentMethodVideoContainer
+                            if (paymentMethodVideoContainer) {
+                                paymentMethodVideoContainer.classList.add('urpay-active');
+                            }
+
+                            // Load and then pause at 6 seconds for UrPay background video
+                            fixedBackgroundVideo.load();
+                            fixedBackgroundVideo.onloadedmetadata = () => {
+                                fixedBackgroundVideo.currentTime = 6;
+                                fixedBackgroundVideo.pause();
+                                fixedVideoPrePaused = true; // Set flag
+                                console.log("Fixed UrPay background video loaded and paused at 6 seconds.");
+                                fixedBackgroundVideo.style.opacity = '1'; // Show video
+                            };
+
+                        } else if (paymentSTCB.checked) {
+                            if (fixedVideoSource) {
+                                fixedVideoSource.src = fixedSTCPayBackgroundVideoInitialSrc;
+                            } else {
+                                fixedBackgroundVideo.src = fixedSTCPayBackgroundVideoInitialSrc;
+                            }
+                            fixedBackgroundVideo.loop = false; // STC Pay background video plays once and freezes
+                            fixedVideoPrePaused = false; // Reset flag
+                            
+                            if (urpayNote) urpayNote.style.display = 'none';
+                            if (urpayAcknowledgeCheckboxContainer) {
+                                urpayAcknowledgeCheckboxContainer.style.display = 'none';
+                                if (urpayAcknowledgeCheckbox) urpayAcknowledgeCheckbox.checked = false;
+                            }
+                            if (termsCheckboxContainer) termsCheckboxContainer.style.display = 'block';
+
+                            // Remove urpay-active class from paymentMethodVideoContainer
+                            if (paymentMethodVideoContainer) {
+                                paymentMethodVideoContainer.classList.remove('urpay-active');
+                            }
+
+                            fixedBackgroundVideo.load(); // Load the new fixed background video
+                        }
+                    }
+                }
+
+                // --- Mobile Payment Selection Logic ---
+                const paymentContainers = document.querySelectorAll('.payment-method-container');
+                function updatePaymentSelection() {
+                    paymentContainers.forEach(container => {
+                        const radio = container.querySelector('input[type="radio"]');
+                        if (radio && radio.checked) {
+                            container.classList.add('selected-payment');
+                        } else {
+                            container.classList.remove('selected-payment');
+                        }
+                    });
+                }
+
+                paymentContainers.forEach(container => {
+                    container.addEventListener('click', () => {
+                        const radio = container.querySelector('input[type="radio"]');
+                        if (radio) {
+                            radio.checked = true;
+                            // Manually trigger change event to run other logic
+                            const event = new Event('change', { bubbles: true });
+                            radio.dispatchEvent(event);
+                        }
+                    });
+                });
+
+                document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
+                    radio.addEventListener('change', () => {
+                        updatePaymentSelection();
+                        updateVideoAndPaymentOptionsOnRadioChange();
+                    });
+                });
+
+
+                // Make the entire shipping method container clickable
+                const shippingMethodContainer = document.querySelector('.shipping-method-container');
+                if (shippingMethodContainer) {
+                    shippingMethodContainer.addEventListener('click', function() {
+                        const radio = this.querySelector('input[type="radio"]');
+                        if (radio) {
+                            radio.checked = true;
+                            // Manually trigger change event if needed for other listeners
+                            const event = new Event('change', { bubbles: true });
+                            radio.dispatchEvent(event);
+                        }
+                    });
+                }
+
+                // Initial calls on DOMContentLoaded
+                updateShippingDateRange();
+                updateDisplayTotal();
+                updateVideoAndPaymentOptionsOnRadioChange(); // Call to set initial video state for fixed background video
+                updatePaymentSelection(); // Set initial selection style for payment method
+            });
+        </script>
+    </body>
+    </html>
+"
+
